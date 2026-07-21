@@ -163,7 +163,7 @@ export default function Archive() {
           {activeDate && shown.length === 0 && <p className="text-ink/50 text-sm">Nothing on this day.</p>}
           {dates.length === 0 && <p className="text-ink/50 text-sm">No entries yet.</p>}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
             {shown.map((entry) => {
               const style = categoryStyles[entry.category] || { label: entry.category, emoji: "✨", bgLight: "bg-white/50", stripe: "bg-plum" };
               return (
