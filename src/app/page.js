@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { useRecentEntries } from "@/hooks/useEntries";
 import { categoryStyles } from "@/lib/categoryStyles";
-import { PenLine, Settings } from "lucide-react";
+import { PenLine, Settings, Sparkles } from "lucide-react";
 import { useDailyWidget } from "@/hooks/useDailyWidget";
 import { useProfile } from "@/hooks/useProfile";
+import { useWeeklySummary } from "@/hooks/useWeeklySummary";
 import EditProfileModal from "@/components/EditProfileModal";
 
 const moodOptions = [
@@ -25,6 +26,7 @@ export default function Home() {
   const { data: widgets, updateField } = useDailyWidget();
   const { profile, saveProfile } = useProfile();
   const [editing, setEditing] = useState(false);
+  const { summary, loading: summaryLoading } = useWeeklySummary();
 
   return (
     <div className="flex gap-8">
@@ -60,7 +62,7 @@ export default function Home() {
           <div>
             <p className="font-display text-xl mb-3">How do you want to remember today?</p>
             
-              <a href="/journal"
+             <a href="/journal"
               className="inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition"
               style={{ backgroundColor: profile.accentColor }}
             >
@@ -100,6 +102,15 @@ export default function Home() {
       </div>
 
       <aside className="w-72 shrink-0 space-y-4">
+        <div className="bg-plum/15 rounded-2xl p-5">
+          <p className="font-semibold text-sm mb-2 flex items-center gap-1.5">
+            <Sparkles size={14} /> This week's recap
+          </p>
+          <p className="text-sm text-ink/70 italic">
+            {summaryLoading ? "Reading your week..." : summary}
+          </p>
+        </div>
+
         <div className="bg-butter/30 rounded-2xl p-5">
           {profile.photoUrl && (
             <div className="w-32 h-32 mx-auto rounded-xl overflow-hidden shadow-sm rotate-[-2deg] bg-white p-1.5 mb-3">
