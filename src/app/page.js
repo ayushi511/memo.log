@@ -31,7 +31,7 @@ export default function Home() {
       <div className="flex-1 max-w-3xl">
         <div className="flex items-center justify-between mb-3">
           <h1 className="font-display text-5xl -ml-1">
-            Hi, I'm {profile.name || "..."}. <span className="text-rose">💜</span>
+            Hi, I'm {profile.name || "..."} <span className="text-rose"></span>
           </h1>
           <button
             onClick={() => setEditing(true)}
