@@ -14,9 +14,7 @@ const colorOptions = [
 export default function EditProfileModal({ profile, onSave, onClose }) {
   const [name, setName] = useState(profile.name);
   const [intro, setIntro] = useState(profile.intro);
-  const [currently, setCurrently] = useState(profile.currently);
-  const [currentlyBuilding, setCurrentlyBuilding] = useState(profile.currentlyBuilding);
-  const [accentColor, setAccentColor] = useState(profile.accentColor);
+    const [accentColor, setAccentColor] = useState(profile.accentColor);
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -36,7 +34,7 @@ export default function EditProfileModal({ profile, onSave, onClose }) {
       photoUrl = data.secure_url;
     }
 
-    await onSave({ name, intro, currently, currentlyBuilding, accentColor, photoUrl });
+    await onSave({ name, intro, accentColor, photoUrl });
     setSaving(false);
     onClose();
   }
@@ -66,21 +64,7 @@ export default function EditProfileModal({ profile, onSave, onClose }) {
           className="w-full rounded-xl border border-ink/10 bg-white px-4 py-2 text-sm mb-4"
         />
 
-        <label className="block text-sm font-semibold text-ink/70 mb-1">Currently</label>
-        <input
-          value={currently}
-          onChange={(e) => setCurrently(e.target.value)}
-          placeholder="e.g. Learning caricatures"
-          className="w-full rounded-xl border border-ink/10 bg-white px-4 py-2 text-sm mb-4"
-        />
-
-        <label className="block text-sm font-semibold text-ink/70 mb-1">Currently building</label>
-        <input
-          value={currentlyBuilding}
-          onChange={(e) => setCurrentlyBuilding(e.target.value)}
-          placeholder="e.g. My own website"
-          className="w-full rounded-xl border border-ink/10 bg-white px-4 py-2 text-sm mb-4"
-        />
+        
 
         <label className="block text-sm font-semibold text-ink/70 mb-1">Photo</label>
         <label className="flex items-center justify-center border-2 border-dashed border-ink/15 rounded-xl bg-white/60 py-3 text-sm text-ink/50 cursor-pointer mb-4">

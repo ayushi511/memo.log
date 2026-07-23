@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata = {
-  title: "Ayushi OS",
+  title: "memo.log",
   description: "My second brain",
 };
 
@@ -22,10 +22,8 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${fraunces.variable} ${inter.variable} ${mono.variable}`}>
       <body className="bg-[#F7F3F9] text-[#3A2E42] font-body min-h-screen">
         <AuthGate>
-          <div className="flex min-h-screen">
-            <Navbar />
-            <main className="flex-1 px-10 py-10">{children}</main>
-          </div>
+          <main className="px-8 py-6 pb-20 max-w-[1400px] mx-auto">{children}</main>
+          <Navbar />
         </AuthGate>
       </body>
     </html>

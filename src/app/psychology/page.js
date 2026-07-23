@@ -10,10 +10,11 @@ export default function Psychology() {
     await addEntry({ text: "", fields: values, imageFile });
   }
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <h1 className="font-display text-3xl mb-6 flex items-center gap-2">
         <Brain size={26} strokeWidth={1.75} className="text-sky" /> Mind Notes
       </h1>
+      <p className="text-sm text-ink/50 italic mb-6">Some thoughts are worth keeping.</p>
       <EntryForm fields={fieldsConfig.psychology} onSubmit={handleSubmit} category="psychology" />
     </div>
   );

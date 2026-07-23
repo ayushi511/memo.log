@@ -4,21 +4,22 @@ import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot, doc, getDoc, where } from "firebase/firestore";
 import { categoryStyles } from "@/lib/categoryStyles";
 import { fieldsConfig } from "@/lib/fieldsConfig";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Search } from "lucide-react";
 import { auth } from "@/lib/auth";
 import EntryForm from "@/components/EntryForm";
 import { deleteEntry, updateEntry, uploadImageToCloudinary } from "@/hooks/useEntries";
 
 const moodLabels = {
-  "😄": "Happy",
-  "🙂": "Good",
-  "😌": "Peaceful",
-  "😐": "Meh",
-  "😴": "Tired",
-  "😤": "Frustrated",
-  "😢": "Sad",
-  "😰": "Anxious",
-  "🥳": "Excited",
+  "😄": "Happy", "🙂": "Good", "😌": "Peaceful", "😐": "Meh",
+  "😴": "Tired", "😤": "Frustrated", "😢": "Sad", "😰": "Anxious", "🥳": "Excited",
+};
+const primaryField = {
+  journal: "happened",
+  psychology: "observation",
+  creative: "title",
+  kitchen: "dish",
+  movies: "title",
+  books: "title",
 };
 
 function renderValue(category, key, val) {
@@ -43,9 +44,9 @@ function renderValue(category, key, val) {
 
 export default function Archive() {
   const [allEntries, setAllEntries] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [dayWidget, setDayWidget] = useState(null);
+  const [monthFilter, setMonthFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [viewingEntry, setViewingEntry] = useState(null);
   const [editingEntry, setEditingEntry] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
@@ -60,135 +61,103 @@ export default function Archive() {
     return () => unsub();
   }, []);
 
-  const byDate = allEntries.reduce((acc, e) => {
-    acc[e.date] = acc[e.date] || [];
-    acc[e.date].push(e);
-    return acc;
-  }, {});
-
-  const dates = Object.keys(byDate).sort((a, b) => (a < b ? 1 : -1));
-
-  const months = [...new Set(dates.map((d) => d.slice(0, 7)))].sort((a, b) => (a < b ? 1 : -1));
-  const activeMonth = selectedMonth || months[0];
-  const datesInMonth = dates.filter((d) => d.startsWith(activeMonth));
-
-  const activeDate = selectedDate || datesInMonth[0];
-  const shown = activeDate ? byDate[activeDate] || [] : [];
-
-  useEffect(() => {
-    if (!activeDate) return;
-    const user = auth.currentUser;
-    if (!user) return;
-    getDoc(doc(db, "dailyWidgets", `${user.uid}_${activeDate}`)).then((snap) => {
-      setDayWidget(snap.exists() ? snap.data() : null);
-    });
-  }, [activeDate]);
+  const months = [...new Set(allEntries.map((e) => e.date?.slice(0, 7)))].filter(Boolean).sort((a, b) => (a < b ? 1 : -1));
 
   function monthLabel(m) {
     const [y, mo] = m.split("-");
     return new Date(y, mo - 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   }
 
+  const filtered = allEntries.filter((e) => {
+  if (monthFilter !== "all" && !e.date?.startsWith(monthFilter)) return false;
+  if (categoryFilter !== "all" && e.category !== categoryFilter) return false;
+  if (searchTerm) {
+    const text = Object.values(e.fields || {}).join(" ").toLowerCase();
+    if (!text.includes(searchTerm.toLowerCase())) return false;
+  }
+  return true;
+});
+
   return (
     <div>
-      <h1 className="font-display text-3xl mb-2 flex items-center gap-2">
-        <CalendarDays size={26} strokeWidth={1.75} className="text-plum" /> Archive
+      <h1 className="font-display text-2xl mb-1 flex items-center gap-2">
+        <CalendarDays size={22} strokeWidth={1.75} className="text-plum" /> Archive
       </h1>
-      <p className="text-ink/60 text-sm mb-6">A look back at all the little things. 💗</p>
+      <p className="text-sm text-ink/50 italic mb-6">A home for the little moments.</p>
 
-      <div className="flex gap-8">
-        <div className="w-52 shrink-0">
-          <p className="text-xs font-semibold text-ink/40 uppercase mb-2">Month</p>
-          <select
-            value={activeMonth || ""}
-            onChange={(e) => {
-              setSelectedMonth(e.target.value);
-              setSelectedDate(null);
-            }}
-            className="w-full bg-white/70 rounded-lg px-3 py-2 text-sm mb-5 focus:outline-none"
-          >
-            {months.map((m) => (
-              <option key={m} value={m}>{monthLabel(m)}</option>
-            ))}
-          </select>
-
-          <p className="text-xs font-semibold text-ink/40 uppercase mb-2">Days</p>
-          <div className="space-y-1 max-h-[60vh] overflow-y-auto">
-            {datesInMonth.map((date) => (
-              <button
-                key={date}
-                onClick={() => setSelectedDate(date)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${
-                  activeDate === date ? "bg-plum text-white" : "text-ink/60 hover:bg-white/60"
-                }`}
-              >
-                {date} <span className="opacity-70">({byDate[date].length})</span>
-              </button>
-            ))}
+      <div className="flex gap-6">
+        <div className="w-48 shrink-0 space-y-5">
+          <div>
+            <p className="text-xs font-semibold text-ink/40 uppercase mb-2">Filter by</p>
+            <p className="text-xs text-ink/50 mb-1">Month</p>
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="w-full bg-white/70 rounded-lg px-3 py-2 text-sm focus:outline-none"
+            >
+              <option value="all">All time</option>
+              {months.map((m) => (
+                <option key={m} value={m}>{monthLabel(m)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+  <p className="text-xs text-ink/50 mb-1">Category</p>
+  <select
+    value={categoryFilter}
+    onChange={(e) => setCategoryFilter(e.target.value)}
+    className="w-full bg-white/70 rounded-lg px-3 py-2 text-sm focus:outline-none"
+  >
+    <option value="all">All entries</option>
+    <option value="journal">Today I...</option>
+    <option value="psychology">Mind Notes</option>
+    <option value="creative">Made This</option>
+    <option value="kitchen">Kitchen Diaries</option>
+    <option value="movies">Screen Time</option>
+    <option value="books">Bookshelf</option>
+  </select>
+</div>
+          <div>
+            <p className="text-xs text-ink/50 mb-1">Search</p>
+            <div className="relative">
+              <Search size={13} className="absolute left-2.5 top-2.5 text-ink/30" />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search entries..."
+                className="w-full bg-white/70 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 
         <div className="flex-1">
-          {dayWidget && (dayWidget.reminder || dayWidget.focus || dayWidget.gratitude || dayWidget.mood) && (
-            <div className="bg-white/50 rounded-2xl p-5 mb-6 flex flex-wrap gap-6">
-              {dayWidget.mood && (
-                <div>
-                  <p className="text-xs font-semibold text-ink/40 uppercase">Mood</p>
-                  <p className="text-2xl">
-                    {dayWidget.mood} <span className="text-sm text-ink/70 align-middle">{moodLabels[dayWidget.mood] || ""}</span>
-                  </p>
-                </div>
-              )}
-              {dayWidget.reminder && (
-                <div>
-                  <p className="text-xs font-semibold text-ink/40 uppercase">📌 Reminder</p>
-                  <p className="text-sm text-ink/80">{dayWidget.reminder}</p>
-                </div>
-              )}
-              {dayWidget.focus && (
-                <div>
-                  <p className="text-xs font-semibold text-ink/40 uppercase">🎯 Focus</p>
-                  <p className="text-sm text-ink/80">{dayWidget.focus}</p>
-                </div>
-              )}
-              {dayWidget.gratitude && (
-                <div>
-                  <p className="text-xs font-semibold text-ink/40 uppercase">💗 Gratitude</p>
-                  <p className="text-sm text-ink/80">{dayWidget.gratitude}</p>
-                </div>
-              )}
-            </div>
-          )}
+          {filtered.length === 0 && <p className="text-ink/50 text-sm">No entries found.</p>}
 
-          {activeDate && shown.length === 0 && <p className="text-ink/50 text-sm">Nothing on this day.</p>}
-          {dates.length === 0 && <p className="text-ink/50 text-sm">No entries yet.</p>}
-
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-            {shown.map((entry) => {
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-5">
+            {filtered.map((entry) => {
               const style = categoryStyles[entry.category] || { label: entry.category, emoji: "✨", bgLight: "bg-white/50", stripe: "bg-plum" };
+              const preview = entry.fields?.[primaryField[entry.category]] || Object.values(entry.fields || {}).filter(Boolean)[0];
               return (
-                <div key={entry.id} className={`${style.bgLight} rounded-2xl break-inside-avoid relative`}>
-                  <div className="rounded-2xl overflow-hidden">
-                    <div className={`${style.stripe} h-1.5`} />
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
-                        <span className="text-xs font-bold text-ink/70 uppercase tracking-wide">
-                          {style.emoji} {style.label}
-                        </span>
-                        <button
-                          onClick={() => setViewingEntry(entry)}
-                          className="text-ink/40 hover:text-ink/80 px-2 leading-none"
-                        >
-                          ⋮
-                        </button>
-                      </div>
-                      {entry.imageUrl && (
-                        <img src={entry.imageUrl} alt="" className="rounded-xl my-3 w-full object-contain bg-white/40" />
-                      )}
-                      {Object.entries(entry.fields || {}).map(([key, val]) => renderValue(entry.category, key, val))}
+                <button
+                  key={entry.id}
+                  onClick={() => setViewingEntry(entry)}
+                  className={`${style.bgLight} rounded-2xl overflow-hidden break-inside-avoid text-left w-full block`}
+                >
+                  <div className={`${style.stripe} h-1.5`} />
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-ink/70 uppercase tracking-wide">
+                        {style.emoji} {style.label}
+                      </span>
+                      <span className="text-xs text-ink/40">{entry.date}</span>
                     </div>
+                    {entry.imageUrl && (
+                      <img src={entry.imageUrl} alt="" className="rounded-xl mb-2 w-full max-h-40 object-cover" />
+                    )}
+                    {preview && <p className="text-sm text-ink/80 line-clamp-3">{preview}</p>}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -198,12 +167,7 @@ export default function Archive() {
       {viewingEntry && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#F7F3F9] rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto relative">
-            <button
-              onClick={() => setViewingEntry(null)}
-              className="absolute top-5 right-5 text-ink/40 hover:text-ink"
-            >
-              ✕
-            </button>
+            <button onClick={() => setViewingEntry(null)} className="absolute top-5 right-5 text-ink/40 hover:text-ink">✕</button>
             <div className="p-8">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm font-bold text-ink/70 uppercase tracking-wide">
@@ -211,28 +175,19 @@ export default function Archive() {
                 </span>
                 <span className="text-xs text-ink/40">{viewingEntry.date}</span>
               </div>
-
               {viewingEntry.imageUrl && (
                 <img src={viewingEntry.imageUrl} alt="" className="rounded-xl mb-4 w-full object-contain bg-white/40" />
               )}
-
               {Object.entries(viewingEntry.fields || {}).map(([key, val]) => renderValue(viewingEntry.category, key, val))}
-
               <div className="flex gap-3 mt-6 pt-6 border-t border-ink/10">
                 <button
-                  onClick={() => {
-                    setEditingEntry(viewingEntry);
-                    setViewingEntry(null);
-                  }}
+                  onClick={() => { setEditingEntry(viewingEntry); setViewingEntry(null); }}
                   className="flex-1 bg-plum text-white px-4 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition"
                 >
                   ✏️ Edit
                 </button>
                 <button
-                  onClick={() => {
-                    setDeletingId(viewingEntry.id);
-                    setViewingEntry(null);
-                  }}
+                  onClick={() => { setDeletingId(viewingEntry.id); setViewingEntry(null); }}
                   className="flex-1 bg-red-500 text-white px-4 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition"
                 >
                   🗑 Delete
@@ -248,14 +203,9 @@ export default function Archive() {
           <div className="bg-white rounded-2xl p-6 w-80">
             <p className="text-sm mb-4">Delete this entry? This can't be undone.</p>
             <div className="flex justify-end gap-3">
-              <button onClick={() => setDeletingId(null)} className="text-sm px-4 py-2">
-                Cancel
-              </button>
+              <button onClick={() => setDeletingId(null)} className="text-sm px-4 py-2">Cancel</button>
               <button
-                onClick={async () => {
-                  await deleteEntry(deletingId);
-                  setDeletingId(null);
-                }}
+                onClick={async () => { await deleteEntry(deletingId); setDeletingId(null); }}
                 className="text-sm px-4 py-2 bg-red-500 text-white rounded-full"
               >
                 Delete
@@ -271,9 +221,7 @@ export default function Archive() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold">Edit entry</h3>
-                <button onClick={() => setEditingEntry(null)} className="text-ink/40">
-                  ✕
-                </button>
+                <button onClick={() => setEditingEntry(null)} className="text-ink/40">✕</button>
               </div>
               <EntryForm
                 category={editingEntry.category}
@@ -281,14 +229,8 @@ export default function Archive() {
                 initialValues={editingEntry.fields}
                 onSubmit={async ({ values, imageFile }) => {
                   let imageUrl = editingEntry.imageUrl;
-                  if (imageFile) {
-                    imageUrl = await uploadImageToCloudinary(imageFile);
-                  }
-                  await updateEntry(editingEntry.id, {
-                    text: values.text || "",
-                    fields: values,
-                    imageUrl,
-                  });
+                  if (imageFile) imageUrl = await uploadImageToCloudinary(imageFile);
+                  await updateEntry(editingEntry.id, { text: values.text || "", fields: values, imageUrl });
                   setEditingEntry(null);
                 }}
               />

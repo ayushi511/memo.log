@@ -26,7 +26,7 @@ Recap:`;
   );
 
   const data = await res.json();
-  
+  console.log("GEMINI RAW:", JSON.stringify(data).slice(0, 300));
   const summary = data.candidates?.[0]?.content?.parts?.[0]?.text || "Couldn't generate a summary right now.";
 
   return Response.json({ summary });

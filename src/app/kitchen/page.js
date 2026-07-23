@@ -10,10 +10,11 @@ export default function Kitchen() {
     await addEntry({ text: "", fields: values, imageFile });
   }
   return (
-    <div className="max-w-3xl">
-      <h1 className="font-display text-3xl mb-6 flex items-center gap-2">
-        <UtensilsCrossed size={26} strokeWidth={1.75} className="text-butter" /> Kitchen Diaries
+    <div className="max-w-3xl mx-auto">
+      <h1 className="font-display text-2xl mb-1 flex items-center gap-2">
+        <UtensilsCrossed size={22} strokeWidth={1.75} className="text-butter" /> Kitchen Diaries
       </h1>
+      <p className="text-sm text-ink/50 italic mb-4">Every recipe tells a story.</p>
       <EntryForm fields={fieldsConfig.kitchen} onSubmit={handleSubmit} category="kitchen" />
     </div>
   );
