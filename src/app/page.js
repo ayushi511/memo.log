@@ -9,12 +9,14 @@ import WeeklyOverview from "@/components/WeeklyOverview";
 import MoodTrackerCard from "@/components/MoodTrackerCard";
 import MiniCalendar from "@/components/MiniCalendar";
 import CategoryCards from "@/components/CategoryCards";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
 
 export default function Home() {
   const { data: widgets } = useDailyWidget();
   const { profile, saveProfile } = useProfile();
   const [editing, setEditing] = useState(false);
-  const { summary, loading: summaryLoading } = useWeeklySummary();
+  const [recapPeriod, setRecapPeriod] = useState("week");
+  const { summary, loading: summaryLoading } = useWeeklySummary(recapPeriod);
 
   return (
     <div>
@@ -67,11 +69,22 @@ export default function Home() {
         </div>
 
         <div className="bg-plum/15 rounded-2xl p-4">
-          <p className="font-semibold text-sm mb-1.5 flex items-center gap-1.5">
-            <Sparkles size={14} /> This week's recap
-          </p>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="font-semibold text-sm flex items-center gap-1.5">
+              <Sparkles size={14} /> Recap
+            </p>
+            <select
+              value={recapPeriod}
+              onChange={(e) => setRecapPeriod(e.target.value)}
+              className="text-[10px] bg-white/60 rounded-full px-2 py-1 focus:outline-none"
+            >
+              <option value="week">This week</option>
+              <option value="month">This month</option>
+              <option value="year">This year</option>
+            </select>
+          </div>
           <p className="text-xs text-ink/70 italic leading-relaxed">
-            {summaryLoading ? "Reading your week..." : summary}
+            {summaryLoading ? "Reading your entries..." : summary}
           </p>
         </div>
       </div>
@@ -83,6 +96,10 @@ export default function Home() {
         <div>
           <MoodTrackerCard />
         </div>
+      </div>
+
+      <div className="mb-5">
+        <ActivityHeatmap />
       </div>
 
       <div className="mb-5">

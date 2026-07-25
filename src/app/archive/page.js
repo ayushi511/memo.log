@@ -85,8 +85,8 @@ export default function Archive() {
       </h1>
       <p className="text-sm text-ink/50 italic mb-6">A home for the little moments.</p>
 
-      <div className="flex gap-6">
-        <div className="w-48 shrink-0 space-y-5">
+      <div className="flex flex-col lg:flex-row gap-6">
+       <div className="w-full lg:w-48 shrink-0 space-y-5">
           <div>
             <p className="text-xs font-semibold text-ink/40 uppercase mb-2">Filter by</p>
             <p className="text-xs text-ink/50 mb-1">Month</p>

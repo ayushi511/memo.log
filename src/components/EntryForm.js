@@ -68,7 +68,7 @@ export default function EntryForm({ onSubmit, fields, category, initialValues = 
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`${style.bg} rounded-2xl p-6 space-y-4`}>
+    <form onSubmit={handleSubmit} className={`${style.bg} rounded-2xl p-4 sm:p-6 space-y-4`}>
       {fields.map((field) => (
         <div key={field.name}>
           <label className="block text-sm font-medium text-ink/70 mb-1.5">{field.label}</label>
