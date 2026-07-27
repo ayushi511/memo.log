@@ -9,12 +9,17 @@ export default function AuthGate({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F3F9]">
-        <p className="text-ink/40 text-sm">Loading...</p>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#F7F3F9] px-6">
+      <div className="text-center max-w-sm">
+        <h1 className="font-display text-4xl mb-3">memo.log ✨</h1>
+        <p className="text-ink/60 text-sm">
+          A personal journaling space - loading your archive...
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (!user) {
     return (
@@ -22,7 +27,7 @@ export default function AuthGate({ children }) {
         <div className="text-center max-w-sm">
           <h1 className="font-display text-4xl mb-3">memo.log ✨</h1>
           <p className="text-ink/60 text-sm mb-8">
-            A personal space to document life — your journal, your creative work,
+            A personal space to document life - your journal, your creative work,
             your little everyday moments, all in one place. Sign in to create your
             own archive.
           </p>
