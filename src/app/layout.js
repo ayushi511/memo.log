@@ -19,7 +19,7 @@ export const metadata = {
   metadataBase: new URL("https://memo-log-lime.vercel.app"),
   openGraph: {
     title: "memo.log: Your Digital Archive",
-    description: "Document your life with AI-powered reflection. Journal entries, creative work, recipes, books and movies — all in one private space.",
+    description: "Document your life. Journal entries, creative work, recipes, books and movies — all in one private space.",
     url: "https://memo-log-lime.vercel.app",
     siteName: "memo.log",
     type: "website",
