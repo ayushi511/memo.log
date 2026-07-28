@@ -14,19 +14,28 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata = {
   title: "memo.log: Your Digital Archive",
-  description: "memo.log is a personal journaling and life-archiving app with AI-powered weekly, monthly and yearly reflections. Document your journal entries, creative work, recipes, books, and movies — all in one private space.",
+  description: "memo.log is a personal journaling and life-archiving app with AI-powered weekly, monthly and yearly reflections. Document your journal entries, creative work, recipes, books and movies — all in one private space.",
   keywords: ["personal journaling app", "AI journal", "digital diary", "life archive", "reflective journaling"],
+  metadataBase: new URL("https://memo-log-lime.vercel.app"),
   openGraph: {
     title: "memo.log: Your Digital Archive",
-    description: "Document your life with AI-powered reflection. Journal entries, creative work, recipes, books, and movies — all in one private space.",
+    description: "Document your life with AI-powered reflection. Journal entries, creative work, recipes, books and movies — all in one private space.",
     url: "https://memo-log-lime.vercel.app",
     siteName: "memo.log",
     type: "website",
+    images: [
+      {
+        url: "/og_image.png", 
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "memo.log: Your Digital Archive",
-    description: "Document your life. Reminisce you archive.",
+    description: "Document your life. Reminisce your archive.",
+    images: ["/og_image.png"],
   },
 };
 
